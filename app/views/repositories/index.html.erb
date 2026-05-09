@@ -1,0 +1,30 @@
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold">Repositories</h1>
+  <%= link_to "+ Add Repository", new_repository_path, class: "text-sm text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md" %>
+</div>
+
+<% if @repositories.empty? %>
+  <div class="text-center py-16 text-gray-400">
+    <p class="text-lg">No repositories yet.</p>
+    <p class="mt-2 text-sm"><%= link_to "Add your first repository", new_repository_path, class: "text-indigo-600 hover:underline" %></p>
+  </div>
+<% else %>
+  <div class="grid gap-4">
+    <% @repositories.each do |repo| %>
+      <div class="bg-white rounded-xl border border-gray-200 p-5 flex items-center justify-between hover:shadow-sm transition">
+        <div>
+          <div class="flex items-center gap-3">
+            <h2 class="font-semibold text-gray-900"><%= repo.name %></h2>
+            <span class="<%= status_badge_classes(repo.status) %> text-xs font-medium px-2 py-0.5 rounded-full">
+              <%= repo.status %>
+            </span>
+          </div>
+          <p class="text-sm text-gray-500 mt-0.5 font-mono truncate max-w-md"><%= repo.url %></p>
+        </div>
+        <% if repo.ready? %>
+          <%= link_to "Chat →", repository_path(repo), class: "text-sm text-indigo-600 hover:text-indigo-800 font-medium" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

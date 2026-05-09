@@ -1,0 +1,30 @@
+<div class="max-w-lg">
+  <h1 class="text-2xl font-bold mb-6">Add Repository</h1>
+
+  <%= form_with model: @repository, class: "bg-white rounded-xl border border-gray-200 p-6 space-y-4" do |f| %>
+    <% if @repository.errors.any? %>
+      <div class="bg-red-50 border border-red-200 rounded-md p-3 text-sm text-red-700">
+        <ul class="list-disc list-inside space-y-1">
+          <% @repository.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div>
+      <%= f.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :name, class: "w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500", placeholder: "My Project" %>
+    </div>
+
+    <div>
+      <%= f.label :url, "Repository URL or local path", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :url, class: "w-full border border-gray-300 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500", placeholder: "https://github.com/org/repo or /path/to/local/repo" %>
+    </div>
+
+    <div class="flex items-center gap-3 pt-2">
+      <%= f.submit "Add & Ingest", class: "bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-md cursor-pointer" %>
+      <%= link_to "Cancel", root_path, class: "text-sm text-gray-500 hover:text-gray-700" %>
+    </div>
+  <% end %>
+</div>

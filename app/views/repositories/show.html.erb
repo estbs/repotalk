@@ -1,0 +1,47 @@
+<div class="flex items-center gap-3 mb-2">
+  <h1 class="text-2xl font-bold"><%= @repository.name %></h1>
+  <span class="<%= status_badge_classes(@repository.status) %> text-xs font-medium px-2 py-0.5 rounded-full">
+    <%= @repository.status %>
+  </span>
+</div>
+<p class="text-sm text-gray-500 font-mono mb-6"><%= @repository.url %></p>
+
+<% unless @repository.ready? %>
+  <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center text-yellow-800">
+    <% if @repository.ingesting? %>
+      <p class="font-medium">Ingestion in progress&hellip;</p>
+      <p class="text-sm mt-1">This page will refresh once the repository is ready.</p>
+      <meta http-equiv="refresh" content="5">
+    <% elsif @repository.failed? %>
+      <p class="font-medium">Ingestion failed.</p>
+      <p class="text-sm mt-1">Check the logs and try re-ingesting by re-adding the repository.</p>
+    <% else %>
+      <p class="font-medium">Queued for ingestion.</p>
+      <p class="text-sm mt-1">This page will refresh once the repository is ready.</p>
+      <meta http-equiv="refresh" content="5">
+    <% end %>
+  </div>
+<% else %>
+  <div class="bg-white rounded-xl border border-gray-200 flex flex-col" style="height: 70vh;">
+    <%# Messages area %>
+    <div id="chat-messages" class="flex-1 overflow-y-auto p-5 space-y-4">
+      <div class="text-center text-gray-400 text-sm py-8">
+        Ask anything about <strong><%= @repository.name %></strong>
+      </div>
+    </div>
+
+    <%# Input form %>
+    <%= form_with url: chat_repository_path(@repository), method: :get,
+                  data: { controller: "chat", action: "submit->chat#submit" },
+                  class: "border-t border-gray-200 p-4 flex gap-3" do |f| %>
+      <%= f.text_field :question,
+            placeholder: "How does authentication work? What are the main models?",
+            autocomplete: "off",
+            data: { chat_target: "input" },
+            class: "flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+      <%= f.submit "Ask",
+            data: { chat_target: "submit" },
+            class: "bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg cursor-pointer" %>
+    <% end %>
+  </div>
+<% end %>

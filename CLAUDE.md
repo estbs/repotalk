@@ -64,6 +64,26 @@ All ADRs live in `doc/architecture/adr/`. The decisions with the most design imp
 - **Recursive character splitting** (ADR 0003): Respects paragraph/function boundaries better than fixed-length splitting. 10% overlap guards against context loss at chunk boundaries.
 - **Generative UI via Tool Use + Turbo Streams** (ADR 0006): LLM selects and populates UI components via function calling; backend renders Rails partials and streams them over SSE.
 
+## Chat Interface Implementation
+
+**Controllers:**
+- `RepositoriesController` — standard CRUD (index, new, create, show); `create` enqueues `IngestionJob` after save.
+- `ChatsController#stream` — includes `ActionController::Live`; sets `Content-Type: text/event-stream`; streams turbo-stream HTML fragments via `ActionController::Live::SSE`; uses `ApplicationController.render(partial:, locals:)` (class-level, thread-safe) to render partials inside `<turbo-stream>` wrappers.
+
+**QueryService** (`app/services/query_service.rb`):
+1. Embeds the question with `text-embedding-3-small`.
+2. Calls `DocumentChunk.search` for the top-5 chunks from the repository.
+3. Builds a context string and sends it to `gpt-4o-mini` with `tool_choice: "required"` and the 5 component tools.
+4. Parses `response.tool_calls` → returns `[{component: "render_plain_answer", input: {...}}]`.
+
+**Stimulus controllers:**
+- `chat_controller` — intercepts form submit; opens `EventSource` to the GET chat route; calls `Turbo.renderStreamMessage(e.data)` per message event; listens for `event: done` to re-enable the input.
+- `code_block_controller` — calls `window.hljs.highlightElement` on connect; handles the copy button.
+
+**SSE format:** `sse.write(html)` → each line prefixed `data:`; the browser EventSource reassembles multiline data transparently. `sse.write("", event: "done")` signals stream end.
+
+**Note on route param:** The member route `/repositories/:id/chat` uses `params[:id]` (not `:repository_id`) in ChatsController.
+
 ## Testing
 
 RSpec is the test framework. Coverage is focused on data retrieval logic (the RAG pipeline), not generic CRUD.
