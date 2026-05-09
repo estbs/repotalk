@@ -26,9 +26,9 @@ RSpec.describe DocumentChunk, type: :model do
     let(:repo)       { create(:repository) }
     let(:other_repo) { create(:repository) }
 
-    let(:dim_0) { Array.new(1536, 0.0).tap { |v| v[0] = 1.0 } }
-    let(:dim_1) { Array.new(1536, 0.0).tap { |v| v[1] = 1.0 } }
-    let(:dim_2) { Array.new(1536, 0.0).tap { |v| v[2] = 1.0 } }
+    let(:dim_0) { Array.new(768, 0.0).tap { |v| v[0] = 1.0 } }
+    let(:dim_1) { Array.new(768, 0.0).tap { |v| v[1] = 1.0 } }
+    let(:dim_2) { Array.new(768, 0.0).tap { |v| v[2] = 1.0 } }
 
     let!(:closest_chunk)   { create(:document_chunk, repository: repo, embedding: dim_0, chunk_index: 0) }
     let!(:distant_chunk)   { create(:document_chunk, repository: repo, embedding: dim_1, chunk_index: 1) }

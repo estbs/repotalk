@@ -5,7 +5,6 @@ class IngestionService
 
   CHUNK_SIZE    = 1000
   CHUNK_OVERLAP = 100
-  EMBED_BATCH   = 100
 
   PROCESSABLE_EXTENSIONS = %w[
     .rb .py .js .ts .jsx .tsx .go .rs .java .kt .swift
@@ -17,7 +16,10 @@ class IngestionService
 
   def initialize(repository)
     @repository = repository
-    @llm = Langchain::LLM::OpenAI.new(api_key: ENV.fetch("OPENAI_API_KEY"))
+    @llm = Langchain::LLM::Ollama.new(
+      url: ENV.fetch("OLLAMA_URL", "http://localhost:11434"),
+      default_options: { embedding_model: "nomic-embed-text" }
+    )
   end
 
   def call
@@ -119,13 +121,10 @@ class IngestionService
   def embed_and_persist(chunks)
     return if chunks.empty?
 
-    chunks.each_slice(EMBED_BATCH) do |batch|
-      embeddings = @llm.embed(text: batch.map { |c| c[:content] }).embeddings
-
-      DocumentChunk.transaction do
-        batch.zip(embeddings).each do |chunk_data, embedding|
-          DocumentChunk.create!(chunk_data.merge(repository: @repository, embedding: embedding))
-        end
+    DocumentChunk.transaction do
+      chunks.each do |chunk_data|
+        embedding = @llm.embed(text: chunk_data[:content]).embeddings.first
+        DocumentChunk.create!(chunk_data.merge(repository: @repository, embedding: embedding))
       end
     end
   end

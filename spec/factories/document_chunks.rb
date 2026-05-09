@@ -7,6 +7,6 @@ FactoryBot.define do
     start_line { 1 }
     end_line { 20 }
     # Sparse unit vector along dimension 0 — safe placeholder when embedding is not under test.
-    embedding { Array.new(1536, 0.0).tap { |v| v[0] = 1.0 } }
+    embedding { Array.new(768, 0.0).tap { |v| v[0] = 1.0 } }
   end
 end

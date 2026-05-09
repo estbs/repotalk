@@ -107,7 +107,6 @@ GEM
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
-    event_stream_parser (1.0.0)
     factory_bot (6.6.0)
       activesupport (>= 6.1.0)
     factory_bot_rails (6.5.1)
@@ -117,8 +116,6 @@ GEM
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
-    faraday-multipart (1.2.0)
-      multipart-post (~> 2.0)
     faraday-net_http (3.4.2)
       net-http (~> 0.5)
     fugit (1.12.1)
@@ -181,7 +178,6 @@ GEM
       drb (~> 2.0)
       prism (~> 1.5)
     msgpack (1.8.0)
-    multipart-post (2.4.1)
     neighbor (1.0.0)
       activerecord (>= 7.2)
     net-http (0.9.1)
@@ -338,10 +334,6 @@ GEM
       rubocop (>= 1.72)
       rubocop-performance (>= 1.24)
       rubocop-rails (>= 2.30)
-    ruby-openai (8.3.0)
-      event_stream_parser (>= 0.3.0, < 2.0.0)
-      faraday (>= 1)
-      faraday-multipart (>= 1)
     ruby-progressbar (1.13.0)
     securerandom (0.4.1)
     shoulda-matchers (7.0.1)
@@ -413,11 +405,13 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  baran
   bootsnap
   brakeman
   debug
   dotenv-rails
   factory_bot_rails
+  faraday
   importmap-rails
   jbuilder
   kamal
@@ -429,7 +423,6 @@ DEPENDENCIES
   rails (~> 8.0.5)
   rspec-rails
   rubocop-rails-omakase
-  ruby-openai
   shoulda-matchers
   solid_cable
   solid_cache

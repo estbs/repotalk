@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe IngestionService do
-  let(:fake_embedding) { Array.new(1536, 0.1) }
+  let(:fake_embedding) { Array.new(768, 0.1) }
 
   # Use a real local directory so the full file-collection path runs
   # without a network call. Only the OpenAI embed call is stubbed.
@@ -18,13 +18,12 @@ RSpec.describe IngestionService do
   after { FileUtils.rm_rf(source_dir) }
 
   before do
-    @llm_double = instance_double(Langchain::LLM::OpenAI)
-    allow(Langchain::LLM::OpenAI).to receive(:new).and_return(@llm_double)
+    @llm_double = instance_double(Langchain::LLM::Ollama)
+    allow(Langchain::LLM::Ollama).to receive(:new).and_return(@llm_double)
 
     allow(@llm_double).to receive(:embed) do |text:|
-      texts    = Array(text)
-      response = instance_double(Langchain::LLM::OpenAIResponse)
-      allow(response).to receive(:embeddings).and_return(texts.map { fake_embedding })
+      response = double(:embed_response)
+      allow(response).to receive(:embeddings).and_return([fake_embedding])
       response
     end
   end

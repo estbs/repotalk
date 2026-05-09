@@ -20,8 +20,9 @@ class ChatsController < ApplicationController
       sse.write(turbo_remove("chat-thinking"))
 
       components.each do |comp|
+        partial_name = comp[:component].delete_prefix("render_")
         input = comp[:input].transform_keys(&:to_sym)
-        sse.write(turbo_append("chat-messages", "chats/components/#{comp[:component]}", **input))
+        sse.write(turbo_append("chat-messages", "chats/components/#{partial_name}", **input))
       end
     rescue => e
       Rails.logger.error("Chat SSE error: #{e.class}: #{e.message}\n#{e.backtrace.first(5).join("\n")}")

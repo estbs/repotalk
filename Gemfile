@@ -45,9 +45,10 @@ gem "neighbor"
 
 # AI orchestration: RAG pipeline, prompts, LLM connections
 gem "langchainrb"
+gem "faraday"
 
-# OpenAI client (used by langchainrb for embeddings + chat)
-gem "ruby-openai"
+# Baran text splitter (used by IngestionService)
+gem "baran"
 
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"

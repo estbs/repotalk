@@ -1,6 +1,5 @@
 class QueryService
   CONTEXT_CHUNKS = 5
-  MODEL          = "gpt-4o-mini"
 
   TOOLS = [
     {
@@ -109,17 +108,17 @@ class QueryService
     - Combine multiple tool calls for complete answers (e.g., explanation + code block + file reference).
   PROMPT
 
+  OLLAMA_URL = ENV.fetch("OLLAMA_URL", "http://localhost:11434")
+
   def initialize(repository, question)
     @repository = repository
     @question   = question
-    @llm = Langchain::LLM::OpenAI.new(
-      api_key: ENV.fetch("OPENAI_API_KEY"),
-      default_options: { chat_completion_model_name: MODEL }
-    )
+    @embed_llm  = Langchain::LLM::Ollama.new(url: OLLAMA_URL, default_options: { embedding_model: "nomic-embed-text" })
+    @chat_llm   = Langchain::LLM::Ollama.new(url: OLLAMA_URL, default_options: { chat_model: "llama3.2" })
   end
 
   def call
-    query_embedding = @llm.embed(text: @question).embeddings.first
+    query_embedding = @embed_llm.embed(text: @question).embeddings.first
     chunks = DocumentChunk.search(query_embedding, repository: @repository, limit: CONTEXT_CHUNKS)
 
     context = chunks.map do |c|
@@ -131,10 +130,10 @@ class QueryService
       { role: "user",   content: "Context:\n#{context}\n\nQuestion: #{@question}" }
     ]
 
-    response = @llm.chat(
+    response = @chat_llm.chat(
       messages:    messages,
       tools:       TOOLS,
-      tool_choice: "required"
+      tool_choice: "auto"
     )
 
     parse_tool_calls(response)
@@ -143,10 +142,19 @@ class QueryService
   private
 
   def parse_tool_calls(response)
-    (response.tool_calls || []).map do |tc|
+    tool_calls = response.tool_calls || []
+
+    if tool_calls.empty?
+      content = response.chat_completion.to_s.strip
+      return [{ component: "render_plain_answer", input: { "content" => content.presence || "I could not generate a response." } }]
+    end
+
+    tool_calls.map do |tc|
+      arguments = tc.dig("function", "arguments")
+      input = arguments.is_a?(Hash) ? arguments : JSON.parse(arguments)
       {
         component: tc.dig("function", "name"),
-        input:     JSON.parse(tc.dig("function", "arguments"))
+        input:     input
       }
     end
   end

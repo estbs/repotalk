@@ -1,7 +1,8 @@
 <div class="bg-white rounded-2xl rounded-tl-sm border border-gray-200 px-5 py-4 max-w-2xl">
   <h3 class="font-semibold text-gray-900 mb-3 text-sm"><%= title %></h3>
   <ol class="space-y-2">
-    <% steps.each_with_index do |step, i| %>
+    <% step_list = steps.is_a?(Array) ? steps : steps.to_s.split(/\n+/).map(&:strip).reject(&:empty?) %>
+    <% step_list.each_with_index do |step, i| %>
       <li class="flex gap-3 text-sm">
         <span class="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-semibold text-xs flex items-center justify-center mt-0.5"><%= i + 1 %></span>
         <span class="text-gray-700 leading-relaxed"><%= step %></span>

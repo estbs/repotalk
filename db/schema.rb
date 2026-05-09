@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_09_192517) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_09_210300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -18,7 +18,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_09_192517) do
   create_table "document_chunks", force: :cascade do |t|
     t.bigint "repository_id", null: false
     t.text "content", null: false
-    t.vector "embedding", limit: 1536
+    t.vector "embedding", limit: 768
     t.string "file_path", null: false
     t.integer "start_line"
     t.integer "end_line"
